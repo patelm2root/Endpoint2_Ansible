@@ -20,11 +20,6 @@
     mode: 0600
   notify: restart monit
 
-- name: Create monit configuration directory
-  file:
-    path: /etc/monit/conf-enabled
-    state: directory
-
 - name: Configure generic /etc/monit/conf-enabled/base
   template:
     src: etc/monit/conf-enabled/base.gen.j2
