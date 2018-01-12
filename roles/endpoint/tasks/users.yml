@@ -1,0 +1,31 @@
+---
+####################################################################################################
+# These tasks create the system administrator accounts on the endpoint.
+#
+# Each system administrator will be granted their own account. Active system administrators will
+# be in the sudo group. Inactive system administrators will be in the nossh group.
+####################################################################################################
+
+- name: Create nossh group
+  group:
+    name: nossh
+    state: present
+
+- name: Create system administrator accounts
+  user:
+    name: "{{ item.name }}"
+    comment: "{{ item.comment }}"
+    password: "{{ item.password }}"
+    shell: "{{ item.shell }}"
+    groups: "{{ item.groups }}"
+    state: present
+    append: no
+  with_items: "{{ users }}"
+
+- name: Create system administrator authorized keys
+  authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "{{ item.key }}"
+    manage_dir: yes
+  with_items: "{{ users }}"

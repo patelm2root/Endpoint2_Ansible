@@ -1,0 +1,17 @@
+[DEFAULT]
+destemail = {{ target_email }}
+sender = Fail2Ban
+mta = sendmail
+ignoreip = 127.0.0.1/8 {{ ssh_anchor_ip }}
+action = %(action_mwl)s
+
+[sshd]
+enabled = true
+port     = ssh
+filter   = sshd
+logpath  = /var/log/auth.log
+
+# Setup a permanent ban if 10 failures in 10 minutes
+bantime = -1
+maxretry = 10
+findtime = 600

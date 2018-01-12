@@ -1,0 +1,52 @@
+---
+###################################################################################################
+# These tasks ensure that the monit package is installed and configured.
+#
+# Monit is a utility for managing and monitoring processes, files, directory and filesystems.
+# We have configured monit to send its metrics to a centralized monitoring server.
+###################################################################################################
+
+- name: Ensure monit package is present
+  apt:
+    name: monit
+    state: present
+
+- name: Configure /etc/monit/monitrc
+  template:
+    src: etc/monit/monitrc.j2
+    dest: /etc/monit/monitrc
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart monit
+
+- name: Create monit configuration directory
+  file:
+    path: /etc/monit/conf-enabled
+    state: directory
+
+- name: Configure generic /etc/monit/conf-enabled/base
+  template:
+    src: etc/monit/conf-enabled/base.gen.j2
+    dest: /etc/monit/conf-enabled/base
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart monit
+
+- name: Configure clinic specific /etc/monit/conf-enabled/base
+  tags:
+     - clinic
+  template:
+    src: etc/monit/conf-enabled/base.clinic.j2
+    dest: /etc/monit/conf-enabled/base
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart monit
+
+- name: Ensure monit is started and starts on boot
+  service:
+    name: monit
+    state: started
+    enabled: yes

@@ -1,0 +1,54 @@
+---
+###################################################################################################
+# These tasks ensure that the fail2ban package is installed and configured.
+#
+# Fail2ban scans log files and bans IPs that show malicious signs. We have configured it to
+# permanently ban any ip address that has 10 failures to login over ssh over a 10 minutes period.
+###################################################################################################
+
+- name: Ensure fail2ban package is present
+  apt:
+    name: fail2ban
+    state: present
+
+- name: Configure /etc/fail2ban/jail.local
+  template:
+    src: etc/fail2ban/jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart fail2ban
+
+- name: Configure /etc/fail2ban/jail.d/postgresql.conf
+  template:
+    src: etc/fail2ban/jail.d/postgresql.conf.j2
+    dest: /etc/fail2ban/jail.d/postgresql.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart fail2ban
+
+- name: Configure /etc/fail2ban/filter.d/postgresql.conf
+  template:
+    src: etc/fail2ban/filter.d/postgresql.conf.j2
+    dest: /etc/fail2ban/filter.d/postgresql.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart fail2ban
+
+- name: Configure /etc/fail2ban/action.d/sendmail-common.local
+  template:
+    src: etc/fail2ban/action.d/sendmail-common.local.j2
+    dest: /etc/fail2ban/action.d/sendmail-common.local
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart fail2ban
+
+- name: Ensure fail2ban is started and starts on boot
+  service:
+    name: fail2ban
+    state: started
+    enabled: yes

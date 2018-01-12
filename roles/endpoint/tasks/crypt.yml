@@ -1,0 +1,68 @@
+---
+###################################################################################################
+# These tasks created the encrypted section on the endpoint.
+#
+# An encrypted filesystem will be created, unlocked and mounted. Any data considered confidential
+# will be stored on this encrypted filesystem.
+###################################################################################################
+
+# TODO - prevent echo into verbose output (cat instead?)
+# TODO - use a block to cleanup the when's
+# TODO - permissions? (chmod & chown)
+
+- name: Make sure cryptsetup package is present
+  apt:
+    name: cryptsetup
+    state: present
+
+- name: Register encrypted_dir var
+  stat:
+    path: "{{ crypt_file }}"
+    get_md5: false
+    get_checksum: false
+  register: crypt_file_stat
+
+- name: Create the file to be used for encryption
+  command: fallocate -l {{ crypt_size }} {{ crypt_file }}
+  when: crypt_file_stat.stat.exists == False
+
+- name: Create the LUKS container inside the file
+  shell: echo "{{ crypt_pass }}" | cryptsetup --verbose --batch-mode luksFormat {{ crypt_file }}
+  when: crypt_file_stat.stat.exists == False
+
+- name: Determine whether the device is active
+  shell: "cryptsetup status encrypted | grep 'is inactive'"
+  register: isInactive
+  ignore_errors: yes
+  changed_when: false
+  tags: startup
+
+- name: Open the LUKS container
+  shell: echo "{{ crypt_pass }}" | cryptsetup luksOpen {{ crypt_file }} encrypted
+  when: isInactive.rc == 0
+  tags: startup
+
+- name: Format and create the filesystem
+  command: mkfs.ext4 -j /dev/mapper/encrypted
+  when: crypt_file_stat.stat.exists == False
+
+- name: Ensure encrypted dir exists
+  file:
+    path: "{{ crypt_dir }}"
+    state: directory
+
+- name: Create fake fstab
+  file:
+    path: /var/fakefstab
+    state: touch
+
+- name: Mount crypt device to encrypted dir
+  mount:
+    path: "{{ crypt_dir }}"
+    src: /dev/mapper/encrypted
+    state: mounted
+    fstype: ext4
+    boot: no
+    fstab: /var/fakefstab
+  when: isInactive.rc == 0
+  tags: startup

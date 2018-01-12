@@ -1,0 +1,90 @@
+---
+####################################################################################################
+# These tasks ensure that the reverse tunnel from the endpoint to the anchor server exists.
+#
+# Since the endpoint will sit behind a firewall we will not be able to connect to it directly.
+# The reverse tunnel will allow us to connect to the endpoint via the anchor server.
+####################################################################################################
+
+# TODO - Change the merge local task below. This requires us to run the playbook as sudo which is
+# not ideal. This is because jzacharuk does not have access to /home/autossh/.ssh . If we change
+# that directory to have a sudo group the task works; however, then ssh fails outright due to
+# strict checks on the ownership/permissions of that directory.
+
+- name: Ensure autossh package is present
+  apt:
+    name: autossh
+    state: present
+
+- name: Create the autossh user
+  user:
+    name: autossh
+    comment: "Unprivileged account used solely to run autossh tunnels to anchor server"
+    shell: /bin/bash
+    generate_ssh_key: yes
+    ssh_key_type: rsa
+    ssh_key_bits: 4096
+    state: present
+
+- name: Fetch the autossh public key
+  fetch:
+    src: /home/autossh/.ssh/id_rsa.pub
+    dest: "/tmp/{{ hostname }}.pub"
+    flat: yes
+    fail_on_missing: yes
+
+- name: Merge into *local* /home/endpoint/.ssh/authorized_keys
+  become_user: endpoint
+  delegate_to: localhost
+  lineinfile:
+    path: /home/endpoint/.ssh/authorized_keys
+    regexp: '{{ hostname }}'
+    line: "{{ lookup('file', '/tmp/{{ hostname }}.pub') }}"
+
+- name: Configure /home/autossh/.ssh/config to not hash known hosts
+  template:
+    src: home/autossh/.ssh/config.j2
+    dest: /home/autossh/.ssh/config
+    owner: autossh
+    group: autossh
+    mode: 0644
+  notify: restart autossh
+
+- name: Configure /home/autossh/.ssh/known_hosts to include anchor server
+  template:
+    src: home/autossh/.ssh/known_hosts.j2
+    dest: /home/autossh/.ssh/known_hosts
+    owner: autossh
+    group: autossh
+    mode: 0644
+  notify: restart autossh
+
+- name: Configure /etc/systemd/system/autossh.service
+  template:
+    src: etc/systemd/system/autossh.service.j2
+    dest: /etc/systemd/system/autossh.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart autossh
+
+- name: Enable the autossh service
+  systemd:
+    daemon_reload: true
+    name: autossh
+    state: started
+    enabled: true
+  notify: restart autossh
+
+- name: Ensure logrotate package is present
+  apt:
+    name: logrotate
+    state: present
+
+- name: Configure /etc/logrotate.d/autossh
+  template:
+    src: etc/logrotate.d/autossh.j2
+    dest: /etc/logrotate.d/autossh
+    owner: root
+    group: root
+    mode: 0644

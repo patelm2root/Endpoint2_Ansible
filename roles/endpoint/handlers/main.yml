@@ -1,0 +1,34 @@
+---
+- name: restart autossh
+  service: name=autossh state=restarted
+
+- name: restart fail2ban
+  service: name=fail2ban state=restarted
+
+- name: restart firewall
+  ufw: state=reloaded
+
+- name: restart monit
+  service: name=monit state=restarted
+  notify: reload monit
+
+- name: reload monit
+  command: monit monitor all
+
+- name: reload network
+  service: name=networking state=reloaded use=service
+
+- name: restart postfix
+  service: name=postfix state=restarted
+
+- name: restart postgresql
+  service: name=postgresql state=restarted
+
+- name: restart rsyslog
+  service: name=rsyslog state=restarted
+
+- name: restart ssh
+  service: name=ssh state=restarted
+
+- name: restart sysstat
+  service: name=sysstat state=restarted

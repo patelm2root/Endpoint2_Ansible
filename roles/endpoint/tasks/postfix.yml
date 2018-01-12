@@ -1,0 +1,99 @@
+---
+###################################################################################################
+# These tasks ensure that the postfix package is installed and configured.
+#
+# Postfix is a mail server that will be used to send email from the endpoint.
+###################################################################################################
+
+- name: Set Postfix option type as internet site
+  debconf:
+    name: postfix
+    question: "postfix/main_mailer_type"
+    value: "'Internet Site'"
+    vtype: "string"
+
+- name: Set Postfix option hostname
+  debconf:
+    name: postifx
+    question: "postfix/mailname"
+    value: "{{ ansible_nodename }}"
+    vtype: "string"
+
+- name: Ensure postfix package is present
+  apt:
+    name: postfix
+    state: present
+
+- name: Ensure mailutils package is present
+  apt:
+    name: mailutils
+    state: present
+
+- name: Configure /etc/mailname
+  template:
+    src: etc/mailname.j2
+    dest: /etc/mailname
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart postfix
+
+- name: Configure /etc/postfix/main.cf
+  template:
+    src: etc/postfix/main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart postfix
+
+- name: Configure /etc/postfix/sasl_passwd
+  template:
+    src: etc/postfix/sasl_passwd.j2
+    dest: /etc/postfix/sasl_passwd
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart postfix
+  register: postfix_sasl_passwd_result
+
+- name: Ensure sasl_password is compiled
+  shell: postmap hash:/etc/postfix/sasl_passwd
+  notify: restart postfix
+  when: postfix_sasl_passwd_result | changed
+
+- name: Configure /etc/postfix/sender_canonical
+  template:
+    src: etc/postfix/sender_canonical.j2
+    dest: /etc/postfix/sender_canonical
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart postfix
+  register: postfix_sender_canonical_result
+
+- name: Ensure sender_canonical is compiled
+  shell: postmap hash:/etc/postfix/sender_canonical
+  notify: restart postfix
+  when: postfix_sender_canonical_result | changed
+
+- name: Configure /etc/aliases
+  template:
+    src: etc/aliases.j2
+    dest: /etc/aliases
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart postfix
+  register: alias_result
+
+- name: Ensure alias is updated
+  shell: /usr/bin/newaliases
+  notify: restart postfix
+  when: alias_result | changed
+
+- name: Ensure postfix is started and starts on boot
+  service:
+    name: postfix
+    state: started
+    enabled: yes

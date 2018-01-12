@@ -1,0 +1,30 @@
+---
+- include: hostname.yml
+
+# Run the apt task first to ensure packages are up to date before running the other tasks.
+- include: apt.yml
+- include: autossh.yml
+- include: coredump.yml
+- include: fail2ban.yml
+- include: firewall.yml
+- include: monit.yml
+- include: network.yml
+- include: ntp.yml
+- include: packages.yml
+- include: postfix.yml
+- include: ssh-server.yml
+- include: sysstat.yml
+- include: timezone.yml
+- include: unattended-upgrades.yml
+- include: users.yml
+
+- include: crypt.yml
+
+# The following modules must be run after crypt (as they all use the encrypted space)
+- include: swap.yml
+- include: postgresql.yml
+- include: vault.yml
+- include: tally.yml
+
+
+
