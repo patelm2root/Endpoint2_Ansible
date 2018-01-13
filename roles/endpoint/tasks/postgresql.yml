@@ -11,11 +11,6 @@
     name: postgresql
     state: present
 
-- name: Create configuration directory for postgresql
-  file:
-    path: /etc/postgresql/9.5/main
-    state: directory
-
 - name: Configure /etc/postgresql/9.5/main/postgresql.conf
   template:
     src: etc/postgresql/9.5/main/postgresql.conf.j2
