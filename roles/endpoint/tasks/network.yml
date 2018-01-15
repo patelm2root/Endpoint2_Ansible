@@ -14,7 +14,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: reload network
+  notify: restart network
 
 - name: Configure clinic specific /etc/network/interfaces
   tags:
@@ -25,4 +25,4 @@
     owner: root
     group: root
     mode: 0644
-  notify: reload network
+  notify: restart network
