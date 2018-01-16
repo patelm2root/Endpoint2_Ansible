@@ -20,9 +20,20 @@
     mode: 0644
   notify: restart postgresql
 
-- name: Configure /etc/postgresql/9.5/main/pg_hba.conf
+- name: Configure generic /etc/postgresql/9.5/main/pg_hba.conf
   template:
-    src: etc/postgresql/9.5/main/pg_hba.conf.j2
+    src: etc/postgresql/9.5/main/pg_hba.conf.gen.j2
+    dest: /etc/postgresql/9.5/main/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: 0640
+  notify: restart postgresql
+
+- name: Configure clinic specific /etc/postgresql/9.5/main/pg_hba.conf
+  tags:
+     - clinic
+  template:
+    src: etc/postgresql/9.5/main/pg_hba.conf.clinic.j2
     dest: /etc/postgresql/9.5/main/pg_hba.conf
     owner: postgres
     group: postgres
