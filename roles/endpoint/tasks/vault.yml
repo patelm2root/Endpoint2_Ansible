@@ -12,7 +12,7 @@
 
 - name: Ensure shell scripts are executable by the postgres user.
   file:
-    path: /hdc/src/vault/sh/init.sh
+    path: /hdc/src/vault/sh/init1.sh
     owner: root
     group: postgres
     mode: 0771
@@ -41,7 +41,7 @@
 
 - name: Create vault in postgres
   become_user: postgres
-  shell: sh/init.sh
+  shell: sh/init1.sh
   args:
     chdir: /hdc/src/vault
   environment:
