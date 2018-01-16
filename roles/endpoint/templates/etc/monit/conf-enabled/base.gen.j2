@@ -32,8 +32,8 @@ check network {{ ansible_default_ipv4.interface }} interface {{ ansible_default_
 ####################################################################################################
 
 # Ensure that the emr server can be pinged
-check host emr_{{ adapter_ip }} with address {{ adapter_ip }}
-  if failed ping then alert
+#check host emr_{{ adapter_ip }} with address {{ adapter_ip }}
+  #if failed ping then alert
 
 ####################################################################################################
 # SERVICES #
