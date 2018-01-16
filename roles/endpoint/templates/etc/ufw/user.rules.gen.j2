@@ -21,7 +21,7 @@
 allow tcp 22 0.0.0.0/0 any {{ ssh_anchor_ip }} in
 -A ufw-user-input -p tcp --dport 22 -s {{ ssh_anchor_ip }} -j ACCEPT
 
-### tuple ### 
+### tuple ###
 #allow tcp 5432 0.0.0.0/0 any {{ adapter_ip }} in
 #-A ufw-user-input -p tcp --dport 5432 -s {{ adapter_ip }} -j ACCEPT
 
