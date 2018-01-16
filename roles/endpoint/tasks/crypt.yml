@@ -9,6 +9,10 @@
 # TODO - prevent echo into verbose output (cat instead?)
 # TODO - use a block to cleanup the when's
 # TODO - permissions? (chmod & chown)
+- name: Make sure cryptsetup package is present
+  apt:
+    name: cryptsetup
+    state: present
 
 - name: Register encrypted_dir var
   stat:
@@ -49,7 +53,7 @@
 - name: Create fake fstab
   file:
     path: /var/fakefstab
-    state: file
+    state: touch
 
 - name: Mount crypt device to encrypted dir
   mount:
