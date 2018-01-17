@@ -1,0 +1,48 @@
+- name: Create the importer user
+  user:
+    name: importer
+    comment: "Unprivileged account used solely to run the emr-importer application"
+    shell: /bin/bash
+    state: present
+
+- name: Create emr-importer directory
+  file:
+    path: /hdc/crypt/src/emr_importer/
+    state: directory
+    owner: root
+    group: importer
+    mode: 0770
+
+- name: Download emr-importer
+  get_url:
+    url: "{{ emr_importer_url }}"
+    dest: /hdc/crypt/src/emr_importer/emr_importer
+    owner: root
+    group: importer
+    mode: 0770
+
+- name: Configure /hdc/crypt/src/emr_importer/.env
+  template:
+    src: hdc/crypt/src/emr_importer/.env.j2
+    dest: /hdc/crypt/src/emr_importer/.env
+    owner: root
+    group: importer
+    mode: 0660
+
+- name: Configure /etc/systemd/system/importer.service
+  template:
+    src: etc/systemd/system/importer.service.j2
+    dest: /etc/systemd/system/importer.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart importer
+
+- name: Enable the importer service
+  systemd:
+    daemon_reload: true
+    name: importer
+    state: started
+    enabled: true
+  notify: restart importer
+

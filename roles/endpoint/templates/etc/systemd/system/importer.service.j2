@@ -1,0 +1,20 @@
+[Unit]
+Description=Keeps the emr-importer application running
+After=network-online.target
+
+[Service]
+WorkingDirectory=/hdc/crypt/src/emr_importer/
+PIDFile=/var/run/importer.pid
+
+# The following run as root
+PermissionsStartOnly=true
+ExecStartPre=/usr/bin/touch /var/run/importer.pid
+ExecStartPre=/bin/chown importer:importer /var/run/importer.pid
+
+# The following run as importer
+User=importer
+ExecStart=/hdc/crypt/src/emr_importer/emr_importer
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

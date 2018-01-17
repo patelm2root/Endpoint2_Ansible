@@ -2,6 +2,9 @@
 - name: restart autossh
   service: name=autossh state=restarted
 
+- name: restart importer
+  service: name=importer state=restarted
+
 - name: restart fail2ban
   service: name=fail2ban state=restarted
 

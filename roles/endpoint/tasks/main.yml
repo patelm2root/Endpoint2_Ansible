@@ -24,4 +24,5 @@
 - include: swap.yml
 - include: postgresql.yml
 - include: vault.yml
+- include: importer.yml
 - include: tally.yml
