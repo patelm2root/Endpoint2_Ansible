@@ -17,7 +17,8 @@
 :ufw-user-limit-accept - [0:0]
 ### RULES ###
 
-### tuple ### allow tcp 22 0.0.0.0/0 any {{ ssh_anchor_ip }} in
+### tuple ### 
+allow tcp 22 0.0.0.0/0 any {{ ssh_anchor_ip }} in
 -A ufw-user-input -p tcp --dport 22 -s {{ ssh_anchor_ip }} -j ACCEPT
 
 ### tuple ### 
