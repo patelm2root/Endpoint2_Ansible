@@ -1,3 +1,12 @@
+############################################################################
+# This tasks create appropriate directory structure on endpoint for PKI    #
+# copy over configuration file to endpoint				   #	
+# generate RSA private key and generate CSR based on private key           #
+# send generated CSR to CA to sign it                                      # 
+# sign CSR on CA locally                                                   #   
+# Send signed cert back to endpoint                                        #
+############################################################################ 
+
 - name: Create directory structure with directories
   file:
     path: "{{ item }}"
@@ -28,7 +37,7 @@
     -config openssl.cnf \
     -new \
     -sha256 \
-    -subj '/C=CA/ST=BC/O=HDCbc'
+    -subj '/C=CA/ST=BC/O=HDCbc' \
     -key "private/{{ hostname }}.key.pem" \
     -out "csr/{{ hostname }}.csr.pem"
   args:
