@@ -28,7 +28,7 @@
     -config openssl.cnf \
     -new \
     -sha256 \
-    -subj '/C=CA/ST=BC/O=HDCbc'
+    -subj '/C=CA/ST=BC/O=HDCbc' \
     -key "private/{{ hostname }}.key.pem" \
     -out "csr/{{ hostname }}.csr.pem"
   args:
