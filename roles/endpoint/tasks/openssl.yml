@@ -1,10 +1,10 @@
 ############################################################################
-# This tasks create appropriate directory structure on endpoint for PKI    #
-# copy over configuration file to endpoint				   #	
-# generate RSA private key and generate CSR based on private key           #
-# send generated CSR to CA to sign it                                      # 
-# sign CSR on CA locally                                                   #   
-# Send signed cert back to endpoint                                        #
+#   This task create appropriate directory structure on endpoint for PKI   #
+#   copy over configuration file to endpoint				                       #	
+#   generate RSA private key and generate CSR based on private key         #
+#   send generated CSR to CA to sign it                                    # 
+#   sign CSR on CA locally                                                 #   
+#   Send signed cert back to endpoint                                      #
 ############################################################################ 
 
 - name: Create directory structure with directories
