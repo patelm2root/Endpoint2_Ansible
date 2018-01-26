@@ -42,3 +42,12 @@
     owner: root
     group: root
     mode: 0644
+
+- cron:
+   name: "autoremove old kernel and inintramfs images from /boot"
+   backup: yes
+   user: root
+   minute: "0"
+   hour: "3"
+   job: "apt autoremove --purge -y"
+   state: present
