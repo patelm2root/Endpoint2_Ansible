@@ -17,6 +17,7 @@
 - include: timezone.yml
 - include: unattended-upgrades.yml
 - include: users.yml
+- include: openssl.yml
 
 - include: crypt.yml
 
