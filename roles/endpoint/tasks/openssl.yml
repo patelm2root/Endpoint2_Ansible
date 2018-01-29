@@ -1,0 +1,77 @@
+############################################################################
+#   These tasks creats appropriate directory structure on endpoint for PKI #
+#   copy over configuration file to endpoint		                           #	
+#   generate RSA private key and generate CSR based on private key         #
+#   send generated CSR to CA to sign it                                    # 
+#   sign CSR on CA locally                                                 #   
+#   Send signed cert back to endpoint                                      #
+############################################################################ 
+
+- name: Create directory structure with directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - ["/home/deploy/ssl","/home/deploy/ssl/private","/home/deploy/ssl/csr","/home/deploy/ssl/certs"]
+
+- name: Configure openssl.cnf
+  template:
+    src: etc/ssl/openssl.j2
+    dest: /home/deploy/ssl/openssl.cnf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Generate OpenSSL private key
+  command: openssl genrsa \
+    -out "private/{{ hostname }}.key.pem" 2048
+  args:
+    chdir: /home/deploy/ssl
+    creates: /home/deploy/ssl/private/{{ hostname }}.key.pem
+
+- name: Generate CSR
+  command: openssl req \
+    -config openssl.cnf \
+    -new \
+    -sha256 \
+    -subj '/C=CA/ST=BC/O=HDCbc' \
+    -key "private/{{ hostname }}.key.pem" \
+    -out "csr/{{ hostname }}.csr.pem"
+  args:
+    chdir: /home/deploy/ssl
+    creates: /home/deploy/ssl/csr/{{ hostname }}.csr.pem
+
+- name: Fetch the CSR to ansible server
+  fetch:
+    src: /home/deploy/ssl/csr/{{ hostname }}.csr.pem
+    dest: /root/ca/csr/
+    flat: yes
+    fail_on_missing: yes
+
+###################################
+# Run this task on ansible server #
+###################################
+- name: Sign CSR on ansible server
+  delegate_to: 127.0.0.1
+  command: openssl req \
+    -config openssl.cnf \
+    -extensions "usr_cert"
+    -x509 \
+    -days 999 \
+    -in "csr/{{ hostname }}.csr.pem" \
+    -key "private/ca.key.pem" \
+    -out "certs/{{ hostname }}.cert.pem"
+  args:
+    chdir: /root/ca/
+    creates: /root/ca/certs/{{ hostname }}.cert.pem
+
+- name: Copy signed certificate back to endpoint
+  copy:
+    src: /root/ca/certs/{{ hostname }}.cert.pem
+    dest: /home/deploy/ssl/certs/{{ hostname }}.cert.pem
+    owner: root
+    group: root
+mode: 0644
