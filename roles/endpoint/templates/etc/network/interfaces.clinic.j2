@@ -1,10 +1,4 @@
-# The primary network interface
-#auto eno1 eno1:0
-
-# eno1 - dhcp
-#iface eno1 inet dhcp
-
-# eno1:0 - static (with no gateway!)
+#eno1:0 - static (with no gateway!)
 auto eno1:0
 iface eno1:0 inet static
 address {{ static_address }}
