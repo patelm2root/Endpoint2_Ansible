@@ -63,14 +63,14 @@
     -days 999 \
     -in "csr/{{ hostname }}.csr.pem" \
     -key "private/ca.key.pem" \
-    -out "certs/{{ hostname }}.cert.pem"
+    -out "newcerts/{{ hostname }}.cert.pem"
   args:
     chdir: /root/ca/
-    creates: /root/ca/certs/{{ hostname }}.cert.pem
+    creates: /root/ca/newcerts/{{ hostname }}.cert.pem
 
 - name: Copy signed certificate back to endpoint
   copy:
-    src: /root/ca/certs/{{ hostname }}.cert.pem
+    src: /root/ca/newcerts/{{ hostname }}.cert.pem
     dest: /root/ssl/certs/{{ hostname }}.cert.pem
     owner: root
     group: root
