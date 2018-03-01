@@ -3,6 +3,7 @@
     name: importer
     comment: "Unprivileged account used solely to run the emr-importer application"
     shell: /bin/bash
+    password: "{{ importer_acc_pass }}"
     state: present
 
 - name: Create emr-importer directory

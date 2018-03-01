@@ -1,0 +1,41 @@
+---
+#######################################################################
+# These tasks create exporter user account on the endpoint.
+# Make upload folder availabe at /hdc/crypt/emr_backups
+# prepend the command for public key
+#######################################################################
+
+- name: Create exporter account
+  user:
+   name: exporter
+   comment: Account used by EMR server to sent exported data to endpoint
+   state: present
+   password: "{{ exporter_acc_pass }}" 
+   shell: /bin/bash
+
+- name: Create ssh config directory
+  file:
+    path: /home/exporter/.ssh
+    state: directory
+    owner: exporter
+    group: exporter
+    mode: 0700
+
+- name: Create emr_backups directory as uploads folder
+  file:
+    path: /hdc/crypt/emr_backups
+    state: directory
+    owner: exporter
+    group: exporter
+    mode: 0755
+
+- name: Prepend rsync command and add public key in to authorized_keys folder
+  tags:
+    - clinic
+  template:
+    src: authorized_keys.j2
+    dest: /home/exporter/.ssh/authorized_keys
+    owner: exporter 
+    group: exporter
+    mode: 0644
+  

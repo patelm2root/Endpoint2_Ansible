@@ -4,7 +4,7 @@ iface lo inet loopback
 
 # The primary network interface
 auto eno1
-
-# eno1 - dhcp
 iface eno1 inet dhcp
 
+# Google Public DNS	
+	dns-nameservers {{ nameserver }} 

@@ -12,3 +12,9 @@
   become: yes
   roles:
     - mois
+
+- name: perform oscar specific configuration
+  hosts: oscar
+  become: yes
+  roles:
+    - oscar

@@ -1,0 +1,8 @@
+###################################################################
+# This task installs en_XX language packe and respective locales  #
+###################################################################
+
+- name: Install en_XX language pack
+  apt:
+    name: language-pack-en
+    state: present

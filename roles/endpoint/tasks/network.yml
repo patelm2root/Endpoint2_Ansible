@@ -16,13 +16,29 @@
     mode: 0644
   notify: restart network
   
-- name: Configure clinic specific /etc/network/interfaces
+
+
+- name: Copy clinic specific interface configuration file
   tags:
-     - clinic
+    - clinic
   template:
-    src: etc/network/interfaces.clinic.j2
-    dest: /etc/network/interfaces
+    src: etc/network/interfaces.d/eno10.cfg.j2
+    dest: /etc/network/interfaces.d/eno1:0.cfg
+    owner: root
+    group: root
+    mode: 0644 
+ 
+- name: Append eno1:0 config file in /etc/network/interfaces
+  tags:
+    - clinic
+  lineinfile:
+    path: /etc/network/interfaces
+    line: "source /etc/network/interfaces.d/*.cfg"
+    insertafter: EOF
+    backup: yes
     owner: root
     group: root
     mode: 0644
-  notify: restart network
+  notify: restart network 
+
+
