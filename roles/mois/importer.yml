@@ -1,0 +1,14 @@
+###########################################################
+# This task creates upload directory for exporter account #
+###########################################################
+
+- name: Create upload directory
+  file:
+    path: /hdc/crypt/uploads
+    state: directory
+    owner: exporter
+    group: exporter
+    mode: 0766
+
+
+
